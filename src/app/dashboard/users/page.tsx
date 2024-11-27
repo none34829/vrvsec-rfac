@@ -3,13 +3,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { UserDialog } from '@/components/dialogs/UserDialog';
-import { User, Role } from '@/types';
+import type { User, Role } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Badge } from '@/components/ui/Badge';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { useRBAC } from '@/hooks/useRBAC';
-import { useContext } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { RBACManager } from '@/lib/rbac';
 import { formatDate } from '@/lib/utils';
@@ -62,7 +61,7 @@ export default function UsersPage() {
     } catch (error) {
       handleError(error as Error);
     }
-  }, [selectedUsers, canDeleteUsers, canEditUsers, setUsersList, addActivity, handleError, showToast]);
+  }, [selectedUsers, canDeleteUsers, canEditUsers, setUsersList, addActivity, handleError, showToast, roles]);
 
   const handleSave = useCallback(async (userData: Partial<User>) => {
     try {
@@ -115,7 +114,7 @@ export default function UsersPage() {
     } catch (error) {
       handleError(error as Error);
     }
-  }, [selectedUser, canEditUsers, setUsersList, addActivity, rbacManager, handleError, showToast]);
+  }, [selectedUser, canEditUsers, setUsersList, addActivity, rbacManager, handleError, showToast, roles]);
 
   const handleDelete = useCallback(async (userId: string) => {
     try {
@@ -137,7 +136,7 @@ export default function UsersPage() {
     } catch (error) {
       handleError(error as Error);
     }
-  }, [canDeleteUsers, usersList, setUsersList, addActivity, handleError, showToast]);
+  }, [canDeleteUsers, usersList, setUsersList, addActivity, handleError, showToast, roles]);
 
   const filteredUsers = useMemo(() => {
     return usersList
