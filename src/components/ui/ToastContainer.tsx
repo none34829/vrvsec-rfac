@@ -1,6 +1,6 @@
 'use client';
 
-import { useToast } from './toast';
+import { useToast } from './Toast';
 
 export function ToastContainer() {
   const { ToastContainer: Container } = useToast();

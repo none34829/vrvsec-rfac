@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { useRBAC } from '@/hooks/useRBAC';
 import { useContext } from 'react';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui/Toast';
 import { RBACManager } from '@/lib/rbac';
 import { formatDate } from '@/lib/utils';
 
