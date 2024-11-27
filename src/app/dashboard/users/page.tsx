@@ -38,30 +38,31 @@ export default function UsersPage() {
 
   const handleBulkAction = useCallback(async (action: 'delete' | 'activate' | 'deactivate') => {
     try {
-      switch (action) {
-        case 'delete':
-          if (!canDeleteUsers) throw new Error('Permission denied');
-          setUsersList((prevUsers: User[]) => prevUsers.filter(user => !selectedUsers.includes(user.id)));
-          addActivity('users_deleted', 'Users deleted', `${selectedUsers.length} users were deleted`);
-          break;
-        case 'activate':
-        case 'deactivate':
-          if (!canEditUsers) throw new Error('Permission denied');
-          setUsersList((prevUsers: User[]) => prevUsers.map(user => 
-            selectedUsers.includes(user.id) 
-              ? { ...user, status: action === 'activate' ? 'active' : 'inactive' }
-              : user
-          ));
-          addActivity('users_status_updated', 'Users status updated', 
-            `${selectedUsers.length} users were ${action === 'activate' ? 'activated' : 'deactivated'}`);
-          break;
+      if (action === 'delete' && !canDeleteUsers) {
+        throw new Error('Permission denied: Cannot delete users');
       }
+      if ((action === 'activate' || action === 'deactivate') && !canEditUsers) {
+        throw new Error('Permission denied: Cannot modify users');
+      }
+
+      const updatedUsers = usersList.map(user => {
+        if (selectedUsers.includes(user.id)) {
+          return {
+            ...user,
+            status: action === 'activate' ? 'active' : action === 'deactivate' ? 'inactive' : user.status
+          };
+        }
+        return user;
+      });
+
+      setUsersList(updatedUsers);
+      addActivity('bulk_action', 'Bulk Action', `Performed ${action} on ${selectedUsers.length} users`);
       setSelectedUsers([]);
       showToast('Bulk action completed successfully', 'success');
     } catch (error) {
       handleError(error as Error);
     }
-  }, [selectedUsers, canDeleteUsers, canEditUsers, setUsersList, addActivity, handleError, showToast, roles]);
+  }, [selectedUsers, canDeleteUsers, canEditUsers, setUsersList, addActivity, handleError, showToast, usersList]);
 
   const handleSave = useCallback(async (userData: Partial<User>) => {
     try {
@@ -69,52 +70,33 @@ export default function UsersPage() {
         throw new Error('Permission denied: Cannot modify users');
       }
 
-      // Handle roles validation only if roles are being updated
-      if (userData.roles !== undefined) {
-        if (!Array.isArray(userData.roles)) {
-          throw new Error('Invalid roles format');
-        }
+      const existingUser = selectedUser ? usersList.find(u => u.id === selectedUser.id) : null;
+      const updatedUser = existingUser
+        ? { ...existingUser, ...userData }
+        : {
+            id: Math.random().toString(36).substr(2, 9),
+            ...userData,
+            status: 'active',
+            createdAt: new Date().toISOString(),
+            lastLogin: null
+          };
 
-        // Ensure all roles are valid
-        const validRoleIds = roles.map(role => role.id);
-        const invalidRoles = userData.roles.filter(role => !validRoleIds.includes(role.id));
-        if (invalidRoles.length > 0) {
-          throw new Error('Invalid role assignment attempted: Some roles do not exist');
-        }
-      }
+      const updatedUsers = existingUser
+        ? usersList.map(u => (u.id === existingUser.id ? updatedUser : u))
+        : [...usersList, updatedUser as User];
 
-      if (selectedUser) {
-        // For updates, merge with existing user data
-        const updatedData = {
-          ...selectedUser,
-          ...userData,
-          roles: userData.roles || selectedUser.roles, // Preserve existing roles if not updated
-          updatedAt: new Date().toISOString()
-        };
-
-        setUsersList((prevUsers: User[]) =>
-          prevUsers.map((user) =>
-            user.id === selectedUser.id ? updatedData : user
-          )
-        );
-        addActivity('user_updated', 'User updated', `${updatedData.name}'s profile was updated`);
-      } else {
-        const newUser: User = {
-          id: Math.random().toString(36).substr(2, 9),
-          ...userData,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        } as User;
-        setUsersList((prevUsers: User[]) => [...prevUsers, newUser]);
-        addActivity('user_added', 'New user added', `${userData.name} was added to the system`);
-      }
-      setSelectedUser(undefined);
+      setUsersList(updatedUsers);
+      addActivity(
+        existingUser ? 'user_updated' : 'user_created',
+        existingUser ? 'User Updated' : 'User Created',
+        `${updatedUser.name} has been ${existingUser ? 'updated' : 'created'}`
+      );
       setDialogOpen(false);
       showToast(`User ${selectedUser ? 'updated' : 'created'} successfully`, 'success');
     } catch (error) {
       handleError(error as Error);
     }
-  }, [selectedUser, canEditUsers, setUsersList, addActivity, rbacManager, handleError, showToast, roles]);
+  }, [selectedUser, canEditUsers, setUsersList, addActivity, handleError, showToast, usersList]);
 
   const handleDelete = useCallback(async (userId: string) => {
     try {
@@ -122,21 +104,19 @@ export default function UsersPage() {
         throw new Error('Permission denied: Cannot delete users');
       }
 
-      const userToDelete = usersList.find(user => user.id === userId);
-      if (!userToDelete) throw new Error('User not found');
-
-      // checking if user has admin role before deletion
-      if (userToDelete.roles.some(role => role.name === 'admin')) {
-        throw new Error('Cannot delete admin user');
+      const userToDelete = usersList.find(u => u.id === userId);
+      if (!userToDelete) {
+        throw new Error('User not found');
       }
 
-      setUsersList((prevUsers: User[]) => prevUsers.filter((user: User) => user.id !== userId));
+      const updatedUsers = usersList.filter(u => u.id !== userId);
+      setUsersList(updatedUsers);
       addActivity('user_deleted', 'User deleted', `${userToDelete.name} has been removed from the system`);
       showToast('User deleted successfully', 'success');
     } catch (error) {
       handleError(error as Error);
     }
-  }, [canDeleteUsers, usersList, setUsersList, addActivity, handleError, showToast, roles]);
+  }, [canDeleteUsers, usersList, setUsersList, addActivity, handleError, showToast]);
 
   const filteredUsers = useMemo(() => {
     return usersList

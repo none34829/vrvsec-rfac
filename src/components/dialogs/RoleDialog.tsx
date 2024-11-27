@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import type { Role, Permission } from '@/types';
+import type { Role } from '@/types';
 import { permissions } from '@/lib/mockData';
 
 interface RoleDialogProps {
