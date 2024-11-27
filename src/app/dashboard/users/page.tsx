@@ -57,7 +57,11 @@ export default function UsersPage() {
       });
 
       setUsersList(updatedUsers);
-      addActivity('bulk_action', 'Bulk Action', `Performed ${action} on ${selectedUsers.length} users`);
+      if (action === 'delete') {
+        addActivity('users_deleted', 'Users Deleted', `Deleted ${selectedUsers.length} users`);
+      } else {
+        addActivity('users_status_updated', 'Users Status Updated', `${action === 'activate' ? 'Activated' : 'Deactivated'} ${selectedUsers.length} users`);
+      }
       setSelectedUsers([]);
       showToast('Bulk action completed successfully', 'success');
     } catch (error) {
