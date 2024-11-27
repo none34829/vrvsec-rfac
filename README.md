@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VRV Security - RBAC Management System
+
+A modern, secure Role-Based Access Control (RBAC) management system built with Next.js 15, React, and Tailwind CSS.
+
+## Features
+
+### 1. Dashboard Overview
+- Real-time statistics display (Total Users, Active Roles, Permissions)
+- Recent activity monitoring with timestamp tracking
+- System status monitoring with health indicators
+- Last backup time tracking
+
+### 2. User Management
+- Create, view, edit, and delete user accounts
+- Assign multiple roles to users
+- User activity tracking
+- Search and filter users
+- Bulk user operations
+
+### 3. Role Management
+- Create and manage custom roles
+- Assign multiple permissions to roles
+- Role hierarchy visualization
+- Role-based access restrictions
+- Prevent deletion of system-critical roles (e.g., Super Admin)
+
+### 4. Permission Management
+- Granular permission control
+- Module-based permission organization
+- Action-based permissions (Create, Read, Update, Delete)
+- Permission inheritance through roles
+- Custom permission creation
+
+### 5. Activity Monitoring
+- Real-time activity tracking
+- Detailed activity logs with timestamps
+- Activity filtering by type
+- User action auditing
+- System event logging
+
+### 6. Security Features
+- Role-based access control (RBAC)
+- Permission-based authorization
+- Secure routing and middleware protection
+- Activity logging for security audits
+- System health monitoring
+
+### 7. User Interface
+- Modern, responsive design
+- Dark mode support
+- Interactive data tables
+- Real-time updates
+- Toast notifications for user feedback
+- Modal dialogs for data entry
+- Searchable dropdown menus
+- Mobile-friendly layout
+
+### 8. Data Management
+- Context-based state management
+- Real-time data updates
+- Data validation and error handling
+- Mock data support for testing
+- Backup time tracking
+
+### 9. Component Features
+- Reusable UI components
+- Custom form controls
+- Interactive modals and dialogs
+- Toast notifications system
+- Loading states and animations
+- Error boundary handling
+- Responsive layout components
+
+### 10. Technical Features
+- Next.js 15 app router
+- React 19 with server components
+- Tailwind CSS for styling
+- TypeScript for type safety
+- Radix UI for accessible components
+- Client-side data caching
+- Responsive design system
+- Custom hooks for business logic
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository
+2. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+- `/src/app` - Next.js app router pages
+- `/src/components` - Reusable React components
+- `/src/contexts` - React context providers
+- `/src/lib` - Utility functions and constants
+- `/src/types` - TypeScript type definitions
+- `/src/hooks` - Custom React hooks
 
-To learn more about Next.js, take a look at the following resources:
+## Technologies Used
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS
+- Radix UI
+- Class Variance Authority
+- PostCSS
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Contributing
 
-## Deploy on Vercel
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the LICENSE file for details.
