@@ -28,12 +28,6 @@ export function RoleManager({
   const [searchQuery, setSearchQuery] = useState('');
   const [showPermissionTree, setShowPermissionTree] = useState(false);
 
-  const filteredRoles = roles.filter(
-    (role) =>
-      role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      role.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const handlePermissionToggle = (role: Role, permission: Permission) => {
     const hasPermission = role.permissions.some((p) => p.id === permission.id);
     let updatedPermissions;
@@ -61,6 +55,21 @@ export function RoleManager({
     return modules;
   };
 
+  const handleCreateRole = () => {
+    const newRole: Partial<Role> = {
+      name: 'New Role',
+      description: '',
+      permissions: []
+    };
+    onCreateRole(newRole);
+  };
+
+  const filteredRoles = roles.filter(
+    (role) =>
+      role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      role.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -73,6 +82,7 @@ export function RoleManager({
         <Button onClick={() => setShowPermissionTree(!showPermissionTree)}>
           {showPermissionTree ? 'Hide Permission Tree' : 'Show Permission Tree'}
         </Button>
+        <Button onClick={handleCreateRole}>Create Role</Button>
       </div>
 
       {showPermissionTree && (
