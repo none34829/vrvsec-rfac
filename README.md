@@ -47,13 +47,11 @@ A modern, secure Role-Based Access Control (RBAC) management system built with N
 
 ### 7. User Interface
 - Modern, responsive design
-- Dark mode support
 - Interactive data tables
 - Real-time updates
 - Toast notifications for user feedback
 - Modal dialogs for data entry
 - Searchable dropdown menus
-- Mobile-friendly layout
 
 ### 8. Data Management
 - Context-based state management
