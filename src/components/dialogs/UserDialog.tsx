@@ -8,17 +8,26 @@ import {
 } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import type { User } from '@/types';
-import { roles } from '@/lib/mockData';
+import type { User, Role } from '@/types';
+import { RBACManager } from '@/lib/rbac';
 
 interface UserDialogProps {
   user?: User;
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   onSave: (user: Partial<User>) => void;
+  availableRoles: Role[];
+  rbacManager: RBACManager;
 }
 
-export function UserDialog({ user, open, onClose, onSave }: UserDialogProps) {
+export function UserDialog({ 
+  user, 
+  open, 
+  onOpenChange,
+  onSave,
+  availableRoles,
+  rbacManager 
+}: UserDialogProps) {
   const [formData, setFormData] = useState<Partial<User>>({
     name: user?.name || '',
     email: user?.email || '',
@@ -29,11 +38,11 @@ export function UserDialog({ user, open, onClose, onSave }: UserDialogProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
-    onClose();
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{user ? 'Edit User' : 'Create User'}</DialogTitle>
@@ -81,7 +90,7 @@ export function UserDialog({ user, open, onClose, onSave }: UserDialogProps) {
           <div className="space-y-2">
             <label className="text-sm font-medium">Roles</label>
             <div className="space-y-2">
-              {roles.map((role) => (
+              {availableRoles.map((role) => (
                 <label key={role.id} className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -102,7 +111,7 @@ export function UserDialog({ user, open, onClose, onSave }: UserDialogProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit">{user ? 'Update' : 'Create'}</Button>

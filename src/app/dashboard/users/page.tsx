@@ -360,9 +360,11 @@ export default function UsersPage() {
       {dialogOpen && (
         <UserDialog
           open={dialogOpen}
-          onClose={() => {
-            setDialogOpen(false);
-            setSelectedUser(undefined);
+          onOpenChange={(open) => {
+            setDialogOpen(open);
+            if (!open) {
+              setSelectedUser(undefined);
+            }
           }}
           onSave={handleSave}
           user={selectedUser}

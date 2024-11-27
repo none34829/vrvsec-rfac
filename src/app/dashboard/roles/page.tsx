@@ -148,9 +148,11 @@ export default function RolesPage() {
 
       <RoleDialog
         open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setSelectedRole(undefined);
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setSelectedRole(undefined);
+          }
         }}
         onSave={handleSave}
         role={selectedRole}
