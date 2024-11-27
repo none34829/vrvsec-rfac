@@ -104,11 +104,19 @@ export default function UsersPage() {
         : [...usersList, updatedUser];
 
       setUsersList(updatedUsers);
-      addActivity(
-        existingUser ? 'user_updated' : 'user_added',
-        existingUser ? 'User Updated' : 'User Created',
-        `${updatedUser.name} has been ${existingUser ? 'updated' : 'created'}`
-      );
+      if (existingUser) {
+        addActivity(
+          'role_modified',
+          'User Updated',
+          `${updatedUser.name} has been updated`
+        );
+      } else {
+        addActivity(
+          'user_added',
+          'User Created',
+          `${updatedUser.name} has been created`
+        );
+      }
       setDialogOpen(false);
       showToast(`User ${selectedUser ? 'updated' : 'created'} successfully`, 'success');
     } catch (error) {
