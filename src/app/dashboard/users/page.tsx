@@ -3,6 +3,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { UserDialog } from '@/components/dialogs/UserDialog';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { User, Role } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { SearchBar } from '@/components/ui/SearchBar';
