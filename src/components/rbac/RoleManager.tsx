@@ -101,10 +101,9 @@ export function RoleManager({
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredRoles.map((role) => (
-          <Card key={role.id} className={cn(
-            'transition-shadow hover:shadow-md',
+          <Card key={role.id} className={`transition-shadow hover:shadow-md ${
             selectedRole?.id === role.id ? 'ring-2 ring-blue-500' : ''
-          )}>
+          }`}>
             <div className="p-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">{role.name}</h3>
@@ -134,6 +133,7 @@ export function RoleManager({
                       variant="info"
                       className="cursor-pointer"
                       onClick={() => handlePermissionToggle(role, permission)}
+                      asButton
                     >
                       {permission.module}: {permission.actions.join(', ')}
                     </Badge>

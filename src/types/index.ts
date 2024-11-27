@@ -17,12 +17,14 @@ export interface Role {
   updatedAt: string;
 }
 
+export type Action = 'create' | 'read' | 'update' | 'delete' | 'bulk_edit';
+
 export interface Permission {
   id: string;
   name: string;
   description: string;
   module: string;
-  actions: ('create' | 'read' | 'update' | 'delete')[];
+  actions: Action[];
 }
 
 export interface Module {

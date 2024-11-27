@@ -1,8 +1,8 @@
-import { User, Role, Permission } from '@/types';
+import { User, Role, Permission, Action } from '@/types';
 
 export interface PermissionCheck {
   module: string;
-  action: 'create' | 'read' | 'update' | 'delete' | 'bulk_edit';
+  action: Action;
 }
 
 export class RBACManager {

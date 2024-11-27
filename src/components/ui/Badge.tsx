@@ -6,6 +6,8 @@ interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
+  asButton?: boolean;
 }
 
 const variantStyles = {
@@ -16,16 +18,27 @@ const variantStyles = {
   info: 'bg-blue-100 text-blue-800',
 };
 
-export function Badge({ variant = 'default', children, className }: BadgeProps) {
+export function Badge({ 
+  variant = 'default', 
+  children, 
+  className,
+  onClick,
+  asButton = false
+}: BadgeProps) {
+  const Component = asButton ? 'button' : 'span';
+  
   return (
-    <span
+    <Component
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
         variantStyles[variant],
+        onClick && 'cursor-pointer',
         className
       )}
+      onClick={onClick}
+      type={asButton ? 'button' : undefined}
     >
       {children}
-    </span>
+    </Component>
   );
 }
