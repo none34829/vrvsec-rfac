@@ -1,6 +1,8 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { fadeIn } from '@/lib/animations';
 
 interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
@@ -25,10 +27,15 @@ export function Badge({
   onClick,
   asButton = false
 }: BadgeProps) {
-  const Component = asButton ? 'button' : 'span';
+  const Component = asButton ? motion.button : motion.span;
   
   return (
     <Component
+      initial="hidden"
+      animate="visible"
+      variants={fadeIn}
+      whileHover={{ scale: 1.05 }}
+      whileTap={asButton ? { scale: 0.95 } : undefined}
       className={cn(
         'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
         variantStyles[variant],

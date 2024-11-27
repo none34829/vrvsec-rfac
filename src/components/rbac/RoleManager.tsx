@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { PermissionTree } from './PermissionTree';
+import { motion } from 'framer-motion';
+import { staggerContainer, listItem } from '@/lib/animations';
 
 interface RoleManagerProps {
   roles: Role[];
@@ -86,90 +88,104 @@ export function RoleManager({
       </div>
 
       {showPermissionTree && (
-        <Card className="p-6">
-          <h3 className="mb-4 text-lg font-medium">Permission Hierarchy</h3>
-          <PermissionTree
-            roles={roles}
-            onPermissionClick={(permission) => {
-              if (selectedRole) {
-                handlePermissionToggle(selectedRole, permission);
-              }
-            }}
-          />
-        </Card>
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="mb-6"
+        >
+          <Card>
+            <h3 className="mb-4 text-lg font-medium">Permission Hierarchy</h3>
+            <PermissionTree
+              roles={roles}
+              onPermissionClick={(permission) => {
+                if (selectedRole) {
+                  handlePermissionToggle(selectedRole, permission);
+                }
+              }}
+            />
+          </Card>
+        </motion.div>
       )}
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      >
         {filteredRoles.map((role) => (
-          <Card key={role.id} className={`transition-shadow hover:shadow-md ${
-            selectedRole?.id === role.id ? 'ring-2 ring-blue-500' : ''
-          }`}>
-            <div className="p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">{role.name}</h3>
-                <Dropdown
-                  trigger={<Button variant="ghost" size="sm">•••</Button>}
-                  items={[
-                    {
-                      label: 'Edit',
-                      onClick: () => setSelectedRole(role),
-                    },
-                    {
-                      label: 'Delete',
-                      onClick: () => onDeleteRole(role.id),
-                      variant: 'destructive',
-                    },
-                  ]}
-                />
-              </div>
-              <p className="mt-2 text-sm text-gray-500">{role.description}</p>
-              
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-500">Permissions</h4>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {role.permissions.map((permission) => (
-                    <Badge
-                      key={permission.id}
-                      variant="info"
-                      className="cursor-pointer"
-                      onClick={() => handlePermissionToggle(role, permission)}
-                      asButton
-                    >
-                      {permission.module}: {permission.actions.join(', ')}
-                    </Badge>
-                  ))}
+          <motion.div key={role.id} variants={listItem}>
+            <Card className={`transition-shadow hover:shadow-md ${
+              selectedRole?.id === role.id ? 'ring-2 ring-blue-500' : ''
+            }`}>
+              <div className="p-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">{role.name}</h3>
+                  <Dropdown
+                    trigger={<Button variant="ghost" size="sm">•••</Button>}
+                    items={[
+                      {
+                        label: 'Edit',
+                        onClick: () => setSelectedRole(role),
+                      },
+                      {
+                        label: 'Delete',
+                        onClick: () => onDeleteRole(role.id),
+                        variant: 'destructive',
+                      },
+                    ]}
+                  />
+                </div>
+                <p className="mt-2 text-sm text-gray-500">{role.description}</p>
+                
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-500">Permissions</h4>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {role.permissions.map((permission) => (
+                      <Badge
+                        key={permission.id}
+                        variant="info"
+                        className="cursor-pointer"
+                        onClick={() => handlePermissionToggle(role, permission)}
+                        asButton
+                      >
+                        {permission.module}: {permission.actions.join(', ')}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-500">Module Coverage</h4>
+                  <div className="mt-2">
+                    {Object.entries(getPermissionsByModule()).map(([module, modulePermissions]) => {
+                      const total = modulePermissions.length;
+                      const assigned = role.permissions.filter((p) => p.module === module).length;
+                      const percentage = Math.round((assigned / total) * 100);
+
+                      return (
+                        <div key={module} className="mb-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>{module}</span>
+                            <span>{percentage}%</span>
+                          </div>
+                          <div className="mt-1 h-2 rounded-full bg-gray-200">
+                            <div
+                              className="h-2 rounded-full bg-blue-500"
+                              style={{ width: `${percentage}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
-
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-500">Module Coverage</h4>
-                <div className="mt-2">
-                  {Object.entries(getPermissionsByModule()).map(([module, modulePermissions]) => {
-                    const total = modulePermissions.length;
-                    const assigned = role.permissions.filter((p) => p.module === module).length;
-                    const percentage = Math.round((assigned / total) * 100);
-
-                    return (
-                      <div key={module} className="mb-2">
-                        <div className="flex items-center justify-between text-sm">
-                          <span>{module}</span>
-                          <span>{percentage}%</span>
-                        </div>
-                        <div className="mt-1 h-2 rounded-full bg-gray-200">
-                          <div
-                            className="h-2 rounded-full bg-blue-500"
-                            style={{ width: `${percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
