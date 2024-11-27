@@ -182,9 +182,11 @@ export default function PermissionsPage() {
 
       <PermissionDialog
         open={dialogOpen}
-        onClose={() => {
-          setDialogOpen(false);
-          setSelectedPermission(undefined);
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setSelectedPermission(undefined);
+          }
         }}
         onSave={handleSave}
         permission={selectedPermission}
