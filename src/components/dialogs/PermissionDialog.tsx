@@ -8,14 +8,14 @@ import {
 } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Permission } from '@/types';
-import { modules } from '@/lib/mockData';
+import { Permission, Module } from '@/types';
 
 interface PermissionDialogProps {
   permission?: Permission;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (permission: Partial<Permission>) => void;
+  modules: Module[];
 }
 
 export function PermissionDialog({
@@ -23,6 +23,7 @@ export function PermissionDialog({
   open,
   onOpenChange,
   onSave,
+  modules,
 }: PermissionDialogProps) {
   const [formData, setFormData] = useState<Partial<Permission>>({
     name: '',
@@ -48,7 +49,7 @@ export function PermissionDialog({
         actions: [],
       });
     }
-  }, [open, permission]);
+  }, [open, permission, modules]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
