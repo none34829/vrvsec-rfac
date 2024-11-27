@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Role, Permission } from '@/types';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -50,16 +51,11 @@ export function PermissionTree({ roles, onPermissionClick }: PermissionTreeProps
               <h3 className="font-medium">{role.name}</h3>
               <p className="text-sm text-gray-500">{role.description}</p>
             </div>
-            <svg
+            <ChevronDown
               className={`h-5 w-5 transform text-gray-500 transition-transform ${
                 expandedRoles.has(role.id) ? 'rotate-180' : ''
               }`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
+            />
           </div>
           {expandedRoles.has(role.id) && (
             <div className="border-t bg-gray-50 p-4">
