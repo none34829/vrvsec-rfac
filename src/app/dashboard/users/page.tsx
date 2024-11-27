@@ -75,24 +75,37 @@ export default function UsersPage() {
         throw new Error('Permission denied: Cannot modify users');
       }
 
+      const now = new Date().toISOString();
       const existingUser = selectedUser ? usersList.find(u => u.id === selectedUser.id) : null;
-      const updatedUser = existingUser
-        ? { ...existingUser, ...userData }
+
+      // Ensure all required fields are present
+      if (!userData.name || !userData.email) {
+        throw new Error('Name and email are required');
+      }
+
+      const updatedUser: User = existingUser
+        ? {
+            ...existingUser,
+            ...userData,
+            updatedAt: now
+          }
         : {
             id: Math.random().toString(36).substr(2, 9),
-            ...userData,
+            name: userData.name,
+            email: userData.email,
             status: 'active',
-            createdAt: new Date().toISOString(),
-            lastLogin: null
+            roles: userData.roles || [],
+            createdAt: now,
+            updatedAt: now
           };
 
       const updatedUsers = existingUser
         ? usersList.map(u => (u.id === existingUser.id ? updatedUser : u))
-        : [...usersList, updatedUser as User];
+        : [...usersList, updatedUser];
 
       setUsersList(updatedUsers);
       addActivity(
-        existingUser ? 'user_updated' : 'user_created',
+        existingUser ? 'user_updated' : 'user_added',
         existingUser ? 'User Updated' : 'User Created',
         `${updatedUser.name} has been ${existingUser ? 'updated' : 'created'}`
       );
