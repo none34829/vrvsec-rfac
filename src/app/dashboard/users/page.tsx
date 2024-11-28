@@ -3,8 +3,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/Button';
 import { UserDialog } from '@/components/dialogs/UserDialog';
+import { ViewPermissionsDialog } from '@/components/dialogs/ViewPermissionsDialog';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { User, Role } from '@/types';
+import type { User, Role, Permission } from '@/types';
 import { useData } from '@/contexts/DataContext';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Badge } from '@/components/ui/Badge';
@@ -13,12 +14,15 @@ import { useRBAC } from '@/hooks/useRBAC';
 import { useToast } from '@/components/ui/Toast';
 import { RBACManager } from '@/lib/rbac';
 import { formatDate } from '@/lib/utils';
+import { Avatar } from '@/components/ui/Avatar';
 
 export default function UsersPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | undefined>();
   const [bulkSelectMode, setBulkSelectMode] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [selectedUserPermissions, setSelectedUserPermissions] = useState<Permission[]>([]);
   const { users: usersList, setUsers: setUsersList, addActivity, roles } = useData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
@@ -318,7 +322,10 @@ export default function UsersPage() {
                     </td>
                   )}
                   <td className="whitespace-nowrap px-6 py-4">
-                    <div className="font-medium">{user.name}</div>
+                    <div className="flex items-center gap-2">
+                      <Avatar name={user.name} />
+                      <div className="font-medium">{user.name}</div>
+                    </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-gray-500">{user.email}</td>
                   <td className="whitespace-nowrap px-6 py-4">
@@ -368,8 +375,8 @@ export default function UsersPage() {
                           label: 'View Permissions',
                           onClick: () => {
                             const permissions = rbacManager.getUserPermissions(user);
-                            // Show permissions in a modal or tooltip
-                            console.log('User permissions:', permissions);
+                            setSelectedUserPermissions(permissions);
+                            setPermissionsDialogOpen(true);
                           },
                         },
                       ]}
@@ -395,6 +402,15 @@ export default function UsersPage() {
           user={selectedUser}
           availableRoles={roles}
           rbacManager={rbacManager}
+        />
+      )}
+      {permissionsDialogOpen && (
+        <ViewPermissionsDialog
+          open={permissionsDialogOpen}
+          onOpenChange={(open) => {
+            setPermissionsDialogOpen(open);
+          }}
+          permissions={selectedUserPermissions}
         />
       )}
     </div>

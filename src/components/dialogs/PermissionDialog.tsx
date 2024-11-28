@@ -16,6 +16,7 @@ interface PermissionDialogProps {
   onOpenChange: (open: boolean) => void;
   onSave: (permission: Partial<Permission>) => void;
   modules: Module[];
+  mode?: 'view' | 'edit' | 'create';
 }
 
 export function PermissionDialog({
@@ -24,6 +25,7 @@ export function PermissionDialog({
   onOpenChange,
   onSave,
   modules,
+  mode = 'create',
 }: PermissionDialogProps) {
   const [formData, setFormData] = useState<Partial<Permission>>({
     name: '',
@@ -31,6 +33,8 @@ export function PermissionDialog({
     module: modules[0].name,
     actions: [],
   });
+
+  const isViewMode = mode === 'view';
 
   // Reset form when dialog opens/closes or permission changes
   useEffect(() => {
@@ -89,7 +93,7 @@ export function PermissionDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {permission ? 'Edit Permission' : 'Create Permission'}
+            {isViewMode ? 'View Permission' : permission ? 'Edit Permission' : 'Create Permission'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -100,8 +104,7 @@ export function PermissionDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
               }
-              placeholder="Enter permission name"
-              required
+              disabled={isViewMode}
             />
           </div>
           <div className="space-y-2">
@@ -111,19 +114,18 @@ export function PermissionDialog({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
-              placeholder="Enter permission description"
-              required
+              disabled={isViewMode}
             />
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Module</label>
             <select
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               value={formData.module}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, module: e.target.value }))
               }
-              required
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm"
+              disabled={isViewMode}
             >
               {modules.map((module) => (
                 <option key={module.id} value={module.name}>
@@ -134,32 +136,41 @@ export function PermissionDialog({
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Actions</label>
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
               {availableActions.map((action) => (
-                <label key={action} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.actions?.includes(action)}
-                    onChange={(e) => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        actions: e.target.checked
-                          ? [...(prev.actions || []), action]
-                          : prev.actions?.filter((a) => a !== action) || [],
-                      }));
-                    }}
-                    className="rounded border-gray-300"
-                  />
-                  <span className="text-sm capitalize">{action}</span>
-                </label>
+                <Button
+                  key={action}
+                  type="button"
+                  variant={formData.actions?.includes(action) ? 'default' : 'outline'}
+                  onClick={() =>
+                    !isViewMode && setFormData((prev) => ({
+                      ...prev,
+                      actions: prev.actions?.includes(action)
+                        ? prev.actions.filter((a) => a !== action)
+                        : [...(prev.actions || []), action],
+                    }))
+                  }
+                  className={isViewMode ? 'cursor-default' : ''}
+                  disabled={isViewMode}
+                >
+                  {action}
+                </Button>
               ))}
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button type="submit">{permission ? 'Update' : 'Create'}</Button>
+            {!isViewMode ? (
+              <>
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                  Cancel
+                </Button>
+                <Button type="submit">Save</Button>
+              </>
+            ) : (
+              <Button type="button" onClick={() => onOpenChange(false)}>
+                Close
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

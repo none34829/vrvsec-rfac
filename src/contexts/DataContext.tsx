@@ -14,7 +14,7 @@ interface DataContextType {
   currentUser: User | null;
   setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
   setRoles: (roles: Role[]) => void;
-  setPermissions: (permissions: Permission[]) => void;
+  setPermissions: (permissions: Permission[] | ((prevPermissions: Permission[]) => Permission[])) => void;
   addActivity: (type: Activity['type'], title: string, description: string) => void;
 }
 
@@ -23,7 +23,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export function DataProvider({ children }: { children: ReactNode }) {
   const [users, setUsersState] = useState(initialUsers);
   const [roles, setRoles] = useState(initialRoles);
-  const [permissions, setPermissions] = useState(initialPermissions);
+  const [permissions, setPermissionsState] = useState(initialPermissions);
   const [activities, setActivities] = useState(initialActivities);
   const [currentUser] = useState<User>(initialUsers[0]); // Set the first user as current user (Super Admin)
 
@@ -32,6 +32,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
       setUsersState(usersOrUpdater);
     } else {
       setUsersState(usersOrUpdater);
+    }
+  };
+
+  const setPermissions = (permissionsOrUpdater: Permission[] | ((prevPermissions: Permission[]) => Permission[])) => {
+    if (typeof permissionsOrUpdater === 'function') {
+      setPermissionsState(permissionsOrUpdater);
+    } else {
+      setPermissionsState(permissionsOrUpdater);
     }
   };
 
@@ -55,7 +63,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       currentUser,
       setUsers,
       setRoles,
-      setPermissions,
+      setPermissions: (permissions) => setPermissionsState(permissions),
       addActivity,
     }}>
       {children}

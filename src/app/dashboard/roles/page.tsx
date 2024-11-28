@@ -1,17 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { roles } from '@/lib/mockData';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { formatDate } from '@/lib/utils';
 import { RoleDialog } from '@/components/dialogs/RoleDialog';
 import { Role } from '@/types';
+import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/components/ui/Toast';
 
 export default function RolesPage() {
+  const { roles, setRoles, addActivity } = useData();
+  const { showToast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | undefined>();
-  const [rolesList, setRolesList] = useState(roles);
 
   const handleSave = (roleData: Partial<Role>) => {
     try {
@@ -25,7 +27,7 @@ export default function RolesPage() {
 
       if (selectedRole) {
         // Update existing role
-        setRolesList((prev) =>
+        setRoles(prev =>
           prev.map((role) =>
             role.id === selectedRole.id
               ? { 
@@ -37,6 +39,7 @@ export default function RolesPage() {
               : role
           )
         );
+        addActivity('role_modified', 'Role Updated', `Role "${roleData.name}" has been updated`);
       } else {
         // Create new role
         const newRole: Role = {
@@ -47,20 +50,22 @@ export default function RolesPage() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
-        setRolesList((prev) => [...prev, newRole]);
+        setRoles(prev => [...prev, newRole]);
+        addActivity('role_modified', 'Role Created', `New role "${roleData.name}" has been created`);
       }
       
       setSelectedRole(undefined);
       setDialogOpen(false);
+      showToast(selectedRole ? 'Role updated successfully' : 'Role created successfully', 'success');
     } catch (error) {
       console.error('Failed to save role:', error);
-      // You might want to show a toast message here
+      showToast(error instanceof Error ? error.message : 'Failed to save role', 'error');
     }
   };
 
   const handleDelete = (roleId: string) => {
     try {
-      const roleToDelete = rolesList.find(role => role.id === roleId);
+      const roleToDelete = roles.find(role => role.id === roleId);
       if (!roleToDelete) {
         throw new Error('Role not found');
       }
@@ -70,10 +75,12 @@ export default function RolesPage() {
         throw new Error('Cannot delete system roles');
       }
 
-      setRolesList((prev) => prev.filter((role) => role.id !== roleId));
+      setRoles(prev => prev.filter((role) => role.id !== roleId));
+      addActivity('role_modified', 'Role Deleted', `Role "${roleToDelete.name}" has been deleted`);
+      showToast('Role deleted successfully', 'success');
     } catch (error) {
       console.error('Failed to delete role:', error);
-      // You might want to show a toast message here
+      showToast(error instanceof Error ? error.message : 'Failed to delete role', 'error');
     }
   };
 
@@ -96,7 +103,7 @@ export default function RolesPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rolesList.map((role) => (
+        {roles.map((role) => (
           <Card key={role.id}>
             <div className="p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

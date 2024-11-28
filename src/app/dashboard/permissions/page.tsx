@@ -1,16 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { permissions, modules, roles } from '@/lib/mockData';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 import { PermissionDialog } from '@/components/dialogs/PermissionDialog';
-import { Permission } from '@/types';
+import type { Permission } from '@/types';
+import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/components/ui/Toast';
+import { modules } from '@/lib/mockData';
 
 export default function PermissionsPage() {
+  const { permissions, setPermissions: setPermissionsFunc, roles, addActivity } = useData();
+  const { showToast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPermission, setSelectedPermission] = useState<Permission | undefined>();
-  const [permissionsList, setPermissionsList] = useState(permissions);
+  const [dialogMode, setDialogMode] = useState<'view' | 'edit' | 'create'>('create');
 
   const handleSave = (permissionData: Partial<Permission>) => {
     try {
@@ -25,7 +30,7 @@ export default function PermissionsPage() {
 
       if (selectedPermission) {
         // Update existing permission
-        setPermissionsList((prev) =>
+        setPermissionsFunc((prev: Permission[]) =>
           prev.map((permission) =>
             permission.id === selectedPermission.id
               ? { 
@@ -36,6 +41,7 @@ export default function PermissionsPage() {
               : permission
           )
         );
+        addActivity('permission_updated', 'Permission Updated', `Permission "${permissionData.name}" has been updated`);
       } else {
         // Create new permission
         const newPermission: Permission = {
@@ -45,20 +51,22 @@ export default function PermissionsPage() {
           module: permissionData.module,
           actions: permissionData.actions,
         };
-        setPermissionsList((prev) => [...prev, newPermission]);
+        setPermissionsFunc((prev: Permission[]) => [...prev, newPermission]);
+        addActivity('permission_updated', 'Permission Created', `New permission "${permissionData.name}" has been created`);
       }
       
       setSelectedPermission(undefined);
       setDialogOpen(false);
+      showToast(selectedPermission ? 'Permission updated successfully' : 'Permission created successfully', 'success');
     } catch (error) {
       console.error('Failed to save permission:', error);
-      alert(error instanceof Error ? error.message : 'Failed to save permission');
+      showToast(error instanceof Error ? error.message : 'Failed to save permission', 'error');
     }
   };
 
   const handleDelete = (permissionId: string) => {
     try {
-      const permissionToDelete = permissionsList.find(p => p.id === permissionId);
+      const permissionToDelete = permissions.find(p => p.id === permissionId);
       if (!permissionToDelete) {
         throw new Error('Permission not found');
       }
@@ -72,18 +80,18 @@ export default function PermissionsPage() {
         throw new Error('Cannot delete permission: It is currently used by one or more roles');
       }
 
-      setPermissionsList((prev) =>
-        prev.filter((permission) => permission.id !== permissionId)
-      );
+      setPermissionsFunc((prev: Permission[]) => prev.filter((permission) => permission.id !== permissionId));
+      addActivity('permission_updated', 'Permission Deleted', `Permission "${permissionToDelete.name}" has been deleted`);
+      showToast('Permission deleted successfully', 'success');
     } catch (error) {
       console.error('Failed to delete permission:', error);
-      alert(error instanceof Error ? error.message : 'Failed to delete permission');
+      showToast(error instanceof Error ? error.message : 'Failed to delete permission', 'error');
     }
   };
 
   const permissionsByModule = modules.map((module) => ({
     ...module,
-    permissions: permissionsList.filter((p) => p.module === module.name),
+    permissions: permissions.filter((p) => p.module === module.name),
   }));
 
   return (
@@ -97,6 +105,7 @@ export default function PermissionsPage() {
           onClick={() => {
             setSelectedPermission(undefined);
             setDialogOpen(true);
+            setDialogMode('create');
           }}
           className="w-full sm:w-auto"
         >
@@ -119,6 +128,7 @@ export default function PermissionsPage() {
                   onClick={() => {
                     setSelectedPermission(undefined);
                     setDialogOpen(true);
+                    setDialogMode('create');
                   }}
                   className="w-full sm:w-auto"
                 >
@@ -156,6 +166,19 @@ export default function PermissionsPage() {
                             onClick={() => {
                               setSelectedPermission(permission);
                               setDialogOpen(true);
+                              setDialogMode('view');
+                            }}
+                            className="flex-1 sm:flex-none"
+                          >
+                            View
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedPermission(permission);
+                              setDialogOpen(true);
+                              setDialogMode('edit');
                             }}
                             className="flex-1 sm:flex-none"
                           >
@@ -191,6 +214,7 @@ export default function PermissionsPage() {
         onSave={handleSave}
         permission={selectedPermission}
         modules={modules}
+        mode={dialogMode}
       />
     </div>
   );
