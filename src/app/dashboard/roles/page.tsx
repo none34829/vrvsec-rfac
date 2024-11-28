@@ -27,7 +27,7 @@ export default function RolesPage() {
 
       if (selectedRole) {
         // Update existing role
-        setRoles(prev =>
+        setRoles((prev: Role[]) =>
           prev.map((role) =>
             role.id === selectedRole.id
               ? { 
